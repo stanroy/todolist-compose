@@ -17,7 +17,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.stanroy.todolist.presentation.common.Screen
-import com.stanroy.todolist.presentation.list_screen.ListScreen
+import com.stanroy.todolist.presentation.screen_add_task.AddTaskScreen
+import com.stanroy.todolist.presentation.screen_task_list.ListScreen
 import com.stanroy.todolist.presentation.theme.TodolistTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -47,6 +48,10 @@ class MainActivity : ComponentActivity() {
                         ) {
                             composable(Screen.ListScreen.route) {
                                 ListScreen(navController)
+                            }
+
+                            composable(Screen.AddTaskScreen.route) {
+                                AddTaskScreen()
                             }
                         }
                     }

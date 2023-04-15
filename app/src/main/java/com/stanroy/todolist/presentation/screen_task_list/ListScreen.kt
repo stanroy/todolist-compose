@@ -1,13 +1,22 @@
-package com.stanroy.todolist.presentation.list_screen
+package com.stanroy.todolist.presentation.screen_task_list
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.*
+import androidx.compose.material.Divider
+import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -20,9 +29,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.stanroy.todolist.R
-import com.stanroy.todolist.TodoApp
 import com.stanroy.todolist.domain.model.TodoTask
 import com.stanroy.todolist.presentation.common.RoundedCheckBox
+import com.stanroy.todolist.presentation.common.Screen
 import com.stanroy.todolist.presentation.common.windowHorizontalPadding
 import com.stanroy.todolist.presentation.theme.TodoAppTypography
 
@@ -30,7 +39,7 @@ import com.stanroy.todolist.presentation.theme.TodoAppTypography
 fun ListScreen(navController: NavController, viewModel: ListScreenViewModel = hiltViewModel()) {
     val tasks by viewModel.tasks.collectAsState()
     Scaffold(modifier = Modifier.fillMaxSize(), floatingActionButton = {
-        FloatingActionButton(onClick = { /*TODO Open New Task Screen, use navController*/ }) {
+        FloatingActionButton(onClick = { navController.navigate(Screen.AddTaskScreen.route) }) {
             Icon(painter = painterResource(id = R.drawable.plus), contentDescription = "New task")
         }
     }) {

@@ -1,4 +1,4 @@
-package com.stanroy.todolist.presentation.list_screen
+package com.stanroy.todolist.presentation.screen_task_list
 
 import androidx.lifecycle.ViewModel
 import com.stanroy.todolist.domain.model.TodoTask
