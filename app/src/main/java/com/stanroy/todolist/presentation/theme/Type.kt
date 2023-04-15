@@ -1,7 +1,5 @@
 package com.stanroy.todolist.presentation.theme
 
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.material.Typography
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
@@ -51,5 +49,21 @@ object TodoAppTypography {
     )
 
     fun taskDescription() = GrayItalicTextBodyUiL
+
+    fun screenTitle(primaryColor: Color) = TextStyle(
+        fontFamily = montserratFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 24.sp,
+        textAlign = defaultAlignment,
+        color = primaryColor
+    )
+
+    fun fieldTitle(primaryColor: Color) = TextStyle(
+        fontFamily = montserratFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp,
+        textAlign = defaultAlignment,
+        color = primaryColor
+    )
 }
 
