@@ -1,17 +1,17 @@
 package com.stanroy.todolist.data.db.dao
 
 import androidx.room.*
-import com.stanroy.todolist.data.db.entities.Task
+import com.stanroy.todolist.data.db.entities.TaskEntity
 
 @Dao
 interface TasksDao {
 
-    @Query("SELECT * FROM task")
-    fun getAll(): List<Task>
+    @Query("SELECT * FROM TaskEntity")
+    fun getAll(): List<TaskEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(task: Task)
+    fun insert(taskEntity: TaskEntity)
 
     @Delete
-    fun delete(task: Task)
+    fun delete(taskEntity: TaskEntity)
 }

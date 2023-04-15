@@ -14,7 +14,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.lifecycleScope
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -23,18 +23,17 @@ import com.stanroy.todolist.presentation.screen_add_task.AddTaskScreen
 import com.stanroy.todolist.presentation.screen_task_list.ListScreen
 import com.stanroy.todolist.presentation.theme.TodolistTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        lifecycleScope.launch {
-            // fix for issue with xiaomi phones not showing the compose layout correctly -> https://issuetracker.google.com/issues/227926002
-            delay(50)
-            window.setBackgroundDrawableResource(android.R.color.transparent)
-        }
+        installSplashScreen()
+//        lifecycleScope.launch {
+//            // fix for issue with xiaomi phones not showing the compose layout correctly -> https://issuetracker.google.com/issues/227926002
+//            delay(50)
+//            window.setBackgroundDrawableResource(android.R.color.transparent)
+//        }
         setContent {
             TodolistTheme {
                 Surface(
@@ -56,7 +55,7 @@ class MainActivity : ComponentActivity() {
                             }
 
                             composable(Screen.AddTaskScreen.route) {
-                                AddTaskScreen()
+                                AddTaskScreen(navController)
                             }
                         }
                     }

@@ -29,6 +29,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.stanroy.todolist.presentation.common.RoundedTextField
 import com.stanroy.todolist.presentation.common.defaultWindowPadding
 import com.stanroy.todolist.presentation.theme.TodoAppTypography
@@ -37,7 +40,10 @@ import com.stanroy.todolist.presentation.theme.defaultRoundedCornerShape
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun AddTaskScreen() {
+fun AddTaskScreen(
+    navController: NavController,
+    viewModel: AddTaskScreenViewModel = hiltViewModel()
+) {
     var canSave by remember { mutableStateOf(false) }
     var titleValue by rememberSaveable { mutableStateOf("") }
     var descriptionValue by rememberSaveable { mutableStateOf("") }
@@ -89,7 +95,7 @@ fun AddTaskScreen() {
                 fieldTitle = "description",
                 value = descriptionValue,
                 onValueChange = { newValue -> descriptionValue = newValue },
-                maxLines = 5,
+                maxLines = 10,
                 singleLine = false,
                 imeAction = ImeAction.Done
             )
@@ -101,7 +107,12 @@ fun AddTaskScreen() {
                 .padding(bottom = 16.dp),
             contentPadding = PaddingValues(16.dp),
             shape = RoundedCornerShape(24.dp),
-            onClick = { /*TODO Add New Task, check $canSave */ }) {
+            onClick = {
+                if (canSave) {
+                    viewModel.addNewTask(titleValue, descriptionValue)
+                    navController.popBackStack()
+                }
+            }) {
             AnimatedContent(targetState = canSave) { canSave ->
                 val text = if (canSave) "Save" else "Fill all needed field"
                 Text(text = text)
@@ -120,6 +131,6 @@ fun AddTaskScreen() {
 @Composable
 fun DefaultPreview() {
     TodolistTheme {
-        AddTaskScreen()
+        AddTaskScreen(rememberNavController(), hiltViewModel())
     }
 }

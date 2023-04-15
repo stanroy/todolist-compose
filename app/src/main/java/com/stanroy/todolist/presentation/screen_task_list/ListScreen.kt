@@ -18,6 +18,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -38,13 +39,16 @@ import com.stanroy.todolist.presentation.theme.TodoAppTypography
 @Composable
 fun ListScreen(navController: NavController, viewModel: ListScreenViewModel = hiltViewModel()) {
     val tasks by viewModel.tasks.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.getAllTasks()
+    }
+
     Scaffold(modifier = Modifier.fillMaxSize(), floatingActionButton = {
         FloatingActionButton(onClick = { navController.navigate(Screen.AddTaskScreen.route) }) {
             Icon(painter = painterResource(id = R.drawable.plus), contentDescription = "New task")
         }
     }) {
-
-
         LazyColumn(
             modifier = Modifier.padding(it.calculateBottomPadding()),
             contentPadding = PaddingValues(
@@ -55,12 +59,13 @@ fun ListScreen(navController: NavController, viewModel: ListScreenViewModel = hi
         ) {
 
 //              TODO remove later, for initial testing purposes only
-            val tempList = mutableListOf<TodoTask>()
+//            val tempList = mutableListOf<TodoTask>()
+//
+//            for (i in 1..10) {
+//                tempList.add(TodoTask("do smth $i", "desc $i"))
+//            }
 
-            for (i in 1..10) {
-                tempList.add(TodoTask("do smth $i", "desc $i"))
-            }
-            items(tempList) { task ->
+            items(tasks) { task ->
                 ListItem(task = task)
                 Divider()
             }
@@ -84,7 +89,10 @@ fun ListItem(modifier: Modifier = Modifier, task: TodoTask) {
                 .weight(1f)
                 .padding(24.dp)
         ) {
-            Text(text = task.title, style = TodoAppTypography.taskTitle(MaterialTheme.colors.onSurface))
+            Text(
+                text = task.title,
+                style = TodoAppTypography.taskTitle(MaterialTheme.colors.onSurface)
+            )
             task.description?.let {
                 Text(
                     text = it,
