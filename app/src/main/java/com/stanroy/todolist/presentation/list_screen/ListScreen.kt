@@ -3,6 +3,7 @@ package com.stanroy.todolist.presentation.list_screen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -19,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.stanroy.todolist.R
+import com.stanroy.todolist.TodoApp
 import com.stanroy.todolist.domain.model.TodoTask
 import com.stanroy.todolist.presentation.common.RoundedCheckBox
 import com.stanroy.todolist.presentation.common.windowHorizontalPadding
@@ -32,18 +34,24 @@ fun ListScreen(navController: NavController, viewModel: ListScreenViewModel = hi
             Icon(painter = painterResource(id = R.drawable.plus), contentDescription = "New task")
         }
     }) {
+
+
         LazyColumn(
             modifier = Modifier.padding(it.calculateBottomPadding()),
-            contentPadding = PaddingValues(start = windowHorizontalPadding, end = windowHorizontalPadding, bottom = 64.dp)
+            contentPadding = PaddingValues(
+                start = windowHorizontalPadding,
+                end = windowHorizontalPadding,
+                bottom = 64.dp
+            )
         ) {
 
-            /*  TODO remove later, for initial testing purposes only
-                val tempList = mutableListOf<TodoTask>()
+//              TODO remove later, for initial testing purposes only
+            val tempList = mutableListOf<TodoTask>()
 
-                for (i in 1..10) {
-                    tempList.add(TodoTask("do smth $i", "desc $i"))
-                }*/
-            items(tasks) { task ->
+            for (i in 1..10) {
+                tempList.add(TodoTask("do smth $i", "desc $i"))
+            }
+            items(tempList) { task ->
                 ListItem(task = task)
                 Divider()
             }
@@ -67,11 +75,19 @@ fun ListItem(modifier: Modifier = Modifier, task: TodoTask) {
                 .weight(1f)
                 .padding(24.dp)
         ) {
-            Text(text = task.title, style = TodoAppTypography.BlackBoldTitleUiL)
-            task.description?.let { Text(text = it, style = TodoAppTypography.GrayItalicTextBodyUiL) }
+            Text(text = task.title, style = TodoAppTypography.taskTitle(MaterialTheme.colors.onSurface))
+            task.description?.let {
+                Text(
+                    text = it,
+                    style = TodoAppTypography.taskDescription()
+                )
+            }
         }
         Image(
-            modifier = Modifier.clickable(interactionSource = MutableInteractionSource(), indication = null) { /*TODO delete task*/ },
+            modifier = Modifier.clickable(
+                interactionSource = MutableInteractionSource(),
+                indication = null
+            ) { /*TODO delete task*/ },
             painter = painterResource(id = R.drawable.delete),
             contentDescription = "Remove task",
             colorFilter = ColorFilter.tint(color = Color.Gray)
