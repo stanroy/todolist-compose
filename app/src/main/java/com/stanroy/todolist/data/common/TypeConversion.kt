@@ -1,6 +1,9 @@
 package com.stanroy.todolist.data.common
 
-import com.stanroy.todolist.data.db.entities.Task
+import com.stanroy.todolist.data.db.entities.TaskEntity
 import com.stanroy.todolist.domain.model.TodoTask
 
-fun Task.toTodoTask(): TodoTask = TodoTask(this.title, this.description)
+fun TaskEntity.toTodoTask(): TodoTask = TodoTask(this.title, this.description)
+
+fun TodoTask.toTaskEntity(): TaskEntity =
+    TaskEntity(title = this.title, description = this.description)

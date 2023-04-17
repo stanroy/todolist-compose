@@ -7,4 +7,6 @@ interface TodoRepository {
 
     suspend fun getAllTodoTasks(): List<TodoTask>
 
+    suspend fun addNewTask(todoTask: TodoTask)
+
 }

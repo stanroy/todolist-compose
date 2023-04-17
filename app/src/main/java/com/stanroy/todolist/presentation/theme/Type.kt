@@ -1,9 +1,6 @@
 package com.stanroy.todolist.presentation.theme
 
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.material.Typography
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -26,30 +23,37 @@ object TodoAppTypography {
     )
 
     val typography = Typography(
+        h1 = TextStyle(
+            fontFamily = montserratFamily,
+            fontWeight = FontWeight.Bold,
+            fontSize = 24.sp,
+            textAlign = defaultAlignment,
+        ),
+        subtitle1 = TextStyle(
+            fontFamily = montserratFamily,
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp,
+            textAlign = defaultAlignment,
+        ),
         body1 = TextStyle(
             fontFamily = montserratFamily,
             fontWeight = FontWeight.Normal,
-            fontSize = 16.sp
+            fontSize = 16.sp,
+            textAlign = defaultAlignment,
+        ),
+        body2 = TextStyle(
+            fontFamily = montserratFamily,
+            fontWeight = FontWeight.Normal,
+            fontStyle = FontStyle.Italic,
+            fontSize = 16.sp,
+            textAlign = defaultAlignment,
+        ),
+        button = TextStyle(
+            fontFamily = montserratFamily,
+            fontWeight = FontWeight.Bold,
+            fontSize = 12.sp,
+            textAlign = defaultAlignment,
         )
     )
-
-    private val GrayItalicTextBodyUiL = TextStyle(
-        fontFamily = montserratFamily,
-        fontWeight = FontWeight.Normal,
-        fontStyle = FontStyle.Italic,
-        fontSize = 16.sp,
-        textAlign = defaultAlignment,
-        color = Color.Gray
-    )
-
-    fun taskTitle(primaryColor: Color) = TextStyle(
-        fontFamily = montserratFamily,
-        fontWeight = FontWeight.Bold,
-        fontSize = 18.sp,
-        textAlign = defaultAlignment,
-        color = primaryColor
-    )
-
-    fun taskDescription() = GrayItalicTextBodyUiL
 }
 

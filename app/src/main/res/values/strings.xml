@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">todolist</string>
+
+
+    <!--    ADD TASK SCREEN-->
+    <string name="add_task_screen_title">Add new task</string>
+    <string name="add_task_title_hint">Title</string>
+    <string name="add_task_description_hint">Description</string>
+    <string name="add_task_save_button_fill_title_label">Fill in the title</string>
+    <string name="add_task_save_button_label">Save</string>
 </resources>
