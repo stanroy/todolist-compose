@@ -1,8 +1,10 @@
 package com.stanroy.todolist.presentation.screen_task_list
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Divider
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
@@ -19,14 +22,13 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.stanroy.todolist.R
@@ -37,7 +39,8 @@ import com.stanroy.todolist.presentation.common.windowHorizontalPadding
 
 @Composable
 fun ListScreen(navController: NavController, viewModel: ListScreenViewModel = hiltViewModel()) {
-    val tasks by viewModel.tasks.collectAsState()
+
+    val state = viewModel.state.value
 
     LaunchedEffect(Unit) {
         viewModel.getAllTasks()
@@ -45,6 +48,7 @@ fun ListScreen(navController: NavController, viewModel: ListScreenViewModel = hi
 
     Scaffold(modifier = Modifier.fillMaxSize(), floatingActionButton = {
         FloatingActionButton(
+            modifier = Modifier.zIndex(1f),
             backgroundColor = MaterialTheme.colors.primary,
             onClick = { navController.navigate(Screen.AddTaskScreen.route) }) {
             Icon(
@@ -54,24 +58,36 @@ fun ListScreen(navController: NavController, viewModel: ListScreenViewModel = hi
         }
     }) {
         LazyColumn(
-            modifier = Modifier.padding(it.calculateBottomPadding()),
+            modifier = Modifier
+                .padding(it.calculateBottomPadding())
+                .zIndex(1f),
             contentPadding = PaddingValues(
                 start = windowHorizontalPadding,
                 end = windowHorizontalPadding,
                 bottom = 64.dp
             )
         ) {
-
-//              TODO remove later, for initial testing purposes only
-//            val tempList = mutableListOf<TodoTask>()
-//
-//            for (i in 1..10) {
-//                tempList.add(TodoTask("do smth $i", "desc $i"))
-//            }
-
-            items(tasks) { task ->
+            items(state.tasks) { task ->
                 ListItem(task = task)
                 Divider()
+            }
+        }
+
+        if (state.isLoading) {
+            val circularProgressBg = Color(0x68D1D1D1)
+            Box(
+                modifier = Modifier
+                    .background(color = circularProgressBg)
+                    .fillMaxSize()
+                    .zIndex(2f),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .fillMaxSize(0.2f),
+                    color = MaterialTheme.colors.primary
+                )
             }
         }
     }
