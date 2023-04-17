@@ -24,37 +24,48 @@ import com.stanroy.todolist.presentation.theme.Shapes
  * Simple rounded checkbox
  *
  *
+ * @param modifier composable modifier for main container
  * @param state checkbox state (checked, unchecked)
  * @param size checkbox size (width, height)
  * @param checkMarkColorFilter default checkmark color is White
+ * @param borderColor default checkmark border color is Gray
  * @param checkedBackground background when checkbox is checked
  * @param unCheckedBackground background when checkbox is unchecked
+ * @param checkedSymbolColor color of the symbol inside checkbox when checked, default is White
+ * @param uncheckedSymbolColor color of the symbol inside checkbox when unchecked, default is White
  * @param onStateChanged callback invoked when checkbox is clicked, it passes current checkbox state
  */
 @Composable
 fun RoundedCheckBox(
+    modifier: Modifier = Modifier,
     state: Boolean = false,
     size: Dp = 20.dp,
-    checkMarkColorFilter: ColorFilter? = null,
+    borderColor: Color = Color.Gray,
     checkedBackground: Color = Color.Green,
     unCheckedBackground: Color = Color.White,
+    checkedSymbolColor: Color = Color.White,
+    uncheckedSymbolColor: Color = Color.White,
     onStateChanged: (state: Boolean) -> Unit
 ) {
     var checked by remember { mutableStateOf(state) }
-
     val animatedBackgroundColor by animateColorAsState(targetValue = if (checked) checkedBackground else unCheckedBackground)
     Box(
-        modifier = Modifier
+        modifier = modifier
             .size(size)
             .clip(shape = Shapes.small)
-            .border(width = 2.5.dp, color = Color.Gray, shape = Shapes.small)
+            .border(width = 2.5.dp, color = borderColor, shape = Shapes.small)
             .background(color = animatedBackgroundColor)
             .clickable(interactionSource = MutableInteractionSource(), indication = null) {
                 checked = !checked
                 onStateChanged(checked)
             }
     ) {
-        Image(modifier = Modifier.padding(2.dp), painter = painterResource(id = R.drawable.checkmark), contentDescription = "check", colorFilter = checkMarkColorFilter)
+        Image(
+            modifier = Modifier.padding(2.dp),
+            painter = painterResource(id = R.drawable.checkmark),
+            contentDescription = "check",
+            colorFilter = ColorFilter.tint(if (checked) checkedSymbolColor else uncheckedSymbolColor)
+        )
     }
 }
 
