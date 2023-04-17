@@ -1,5 +1,6 @@
 package com.stanroy.todolist.data.repository
 
+import android.util.Log
 import com.stanroy.todolist.data.common.toTaskEntity
 import com.stanroy.todolist.data.common.toTodoTask
 import com.stanroy.todolist.data.db.dao.TasksDao
@@ -12,6 +13,12 @@ class TodoRepositoryImpl(private val tasksDao: TasksDao) : TodoRepository {
 
     override suspend fun addNewTask(todoTask: TodoTask) {
         tasksDao.insert(todoTask.toTaskEntity())
+        Log.d("TAG_TAG", "new task: ${todoTask.toTaskEntity()}")
+    }
+
+    override suspend fun deleteTask(todoTask: TodoTask) {
+        Log.d("TAG_TAG", "delete task: $todoTask")
+        tasksDao.delete(todoTask.toTaskEntity())
     }
 
 

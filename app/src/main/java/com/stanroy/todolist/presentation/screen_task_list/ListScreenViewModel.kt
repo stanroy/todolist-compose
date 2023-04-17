@@ -3,6 +3,7 @@ package com.stanroy.todolist.presentation.screen_task_list
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import com.stanroy.todolist.domain.model.TodoTask
 import com.stanroy.todolist.domain.repository.TodoRepository
 import com.stanroy.todolist.presentation.common.ViewModelCommons
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,9 +26,15 @@ class ListScreenViewModel @Inject constructor(private val repository: TodoReposi
         }
     }
 
-    fun getAllTasks() {
-        readTasksFromDatabase()
+    private fun deleteTaskFromDatabase(todoTask: TodoTask) {
+        ViewModelCommons.dbScope.launch {
+            repository.deleteTask(todoTask)
+        }
     }
+
+
+    fun getAllTasks() = readTasksFromDatabase()
+    fun deleteTask(todoTask: TodoTask) = deleteTaskFromDatabase(todoTask)
 
 
 }

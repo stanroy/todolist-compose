@@ -1,10 +1,15 @@
 package com.stanroy.todolist.presentation.screen_task_list
 
 import android.content.res.Configuration
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -26,6 +31,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -46,6 +52,7 @@ import com.stanroy.todolist.presentation.common.windowHorizontalPadding
 import com.stanroy.todolist.presentation.common.windowVerticalPadding
 import com.stanroy.todolist.presentation.theme.TodolistTheme
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ListScreen(navController: NavController, viewModel: ListScreenViewModel = hiltViewModel()) {
 
@@ -66,10 +73,10 @@ fun ListScreen(navController: NavController, viewModel: ListScreenViewModel = hi
                 contentDescription = "New task"
             )
         }
-    }) {
+    }) { padding ->
         LazyColumn(
             modifier = Modifier
-                .padding(it.calculateBottomPadding())
+                .padding(padding)
                 .zIndex(1f),
             contentPadding = PaddingValues(
                 top = windowVerticalPadding,
@@ -79,8 +86,24 @@ fun ListScreen(navController: NavController, viewModel: ListScreenViewModel = hi
             )
         ) {
             items(state.tasks) { task ->
-                ListItem(task = task)
-                Spacer(modifier = Modifier.height(16.dp))
+                val canShowTask = remember { MutableTransitionState(false) }
+                    .apply { targetState = true }
+
+                AnimatedVisibility(
+                    visibleState = canShowTask,
+                    enter = fadeIn(),
+                    exit = fadeOut() + slideOutVertically()
+                ) {
+                    ListItem(modifier = Modifier.animateItemPlacement(), task = task) {
+                        canShowTask.targetState = false
+                        viewModel.deleteTask(task)
+                    }
+                }
+
+                if (!canShowTask.currentState) {
+                    viewModel.getAllTasks()
+                }
+
             }
         }
 
@@ -106,54 +129,58 @@ fun ListScreen(navController: NavController, viewModel: ListScreenViewModel = hi
 
 
 @Composable
-fun ListItem(modifier: Modifier = Modifier, task: TodoTask) {
+fun ListItem(
+    modifier: Modifier = Modifier,
+    task: TodoTask,
+    onTaskRemoveClicked: () -> Unit
+) {
     val gradient = Brush.verticalGradient(
         colorStops = arrayOf(
             0.0f to MaterialTheme.colors.primary,
             1f to MaterialTheme.colors.primaryVariant
         )
     )
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(brush = gradient, shape = RoundedCornerShape(24.dp)),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        RoundedCheckBox(
-            modifier = Modifier.padding(start = 32.dp),
-            borderColor = MaterialTheme.colors.onPrimary,
-            checkedBackground = MaterialTheme.colors.onPrimary,
-            onStateChanged = {/*TODO change task state*/ })
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .padding(32.dp)
+    Column {
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .background(brush = gradient, shape = RoundedCornerShape(24.dp)),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = task.title,
-                style = MaterialTheme.typography.subtitle1,
-                color = MaterialTheme.colors.onPrimary
-            )
-            task.description?.let {
+            RoundedCheckBox(
+                modifier = Modifier.padding(start = 32.dp),
+                borderColor = MaterialTheme.colors.onPrimary,
+                checkedBackground = MaterialTheme.colors.onPrimary,
+                onStateChanged = {/*TODO change task state*/ })
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(32.dp)
+            ) {
                 Text(
-                    text = it,
-                    style = MaterialTheme.typography.body2,
-                    color = MaterialTheme.colors.secondary
+                    text = task.title,
+                    style = MaterialTheme.typography.subtitle1,
+                    color = MaterialTheme.colors.onPrimary
                 )
+                task.description?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.body2,
+                        color = MaterialTheme.colors.secondary
+                    )
+                }
             }
-        }
 
-        Image(
-            modifier = Modifier
-                .padding(end = 32.dp)
-                .clickable(
-                    interactionSource = MutableInteractionSource(),
-                    indication = null
-                ) { /*TODO delete task*/ },
-            painter = painterResource(id = R.drawable.delete),
-            contentDescription = "Remove task",
-            colorFilter = ColorFilter.tint(color = MaterialTheme.colors.onPrimary)
-        )
+            Image(
+                modifier = Modifier
+                    .padding(end = 32.dp)
+                    .clickable() { onTaskRemoveClicked() },
+                painter = painterResource(id = R.drawable.delete),
+                contentDescription = "Remove task",
+                colorFilter = ColorFilter.tint(color = MaterialTheme.colors.onPrimary)
+            )
+        }
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
@@ -168,7 +195,7 @@ fun ListItem(modifier: Modifier = Modifier, task: TodoTask) {
 fun DefaultPreview() {
     val tempList = mutableListOf<TodoTask>()
     for (i in 1..10) {
-        tempList.add(TodoTask("do smth $i", "desc $i"))
+        tempList.add(TodoTask(title = "do smth $i", description = "desc $i"))
     }
 
     TodolistTheme {
@@ -180,7 +207,9 @@ fun DefaultPreview() {
             )
         ) {
             items(tempList) { task ->
-                ListItem(task = task)
+                ListItem(task = task) {
+
+                }
                 Divider()
             }
         }
