@@ -11,8 +11,11 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -24,6 +27,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
@@ -31,55 +35,61 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
+import com.stanroy.todolist.R
 import com.stanroy.todolist.presentation.common.RoundedTextField
 import com.stanroy.todolist.presentation.common.defaultWindowPadding
-import com.stanroy.todolist.presentation.theme.TodoAppTypography
 import com.stanroy.todolist.presentation.theme.TodolistTheme
 import com.stanroy.todolist.presentation.theme.defaultRoundedCornerShape
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AddTaskScreen(
     navController: NavController,
     viewModel: AddTaskScreenViewModel = hiltViewModel()
 ) {
+    NewTaskForm { title, description ->
+        viewModel.addNewTask(title, description)
+        navController.popBackStack()
+    }
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun NewTaskForm(
+    modifier: Modifier = Modifier,
+    addNewTask: (title: String, description: String) -> Unit
+) {
     var canSave by remember { mutableStateOf(false) }
     var titleValue by rememberSaveable { mutableStateOf("") }
     var descriptionValue by rememberSaveable { mutableStateOf("") }
-
+    val bgColor = MaterialTheme.colors.primary
+    val bgModifier = Modifier.background(
+        color = bgColor,
+        shape = defaultRoundedCornerShape
+    )
     Column(
-        modifier = Modifier
-            .fillMaxSize().defaultWindowPadding
-            .padding(top = 16.dp),
+        modifier = modifier
+            .verticalScroll(state = rememberScrollState())
+            .fillMaxSize().defaultWindowPadding,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val bgColor = MaterialTheme.colors.onSurface
-        val bgModifier = Modifier.background(
-            color = bgColor,
-            shape = defaultRoundedCornerShape
-        )
         Text(
             modifier = Modifier
                 .fillMaxWidth()
                 .then(bgModifier)
                 .padding(32.dp),
-            text = "AddTask",
-            style = TodoAppTypography.screenTitle(MaterialTheme.colors.surface),
+            text = stringResource(id = R.string.add_task_screen_title),
+            style = MaterialTheme.typography.h1,
+            color = MaterialTheme.colors.onPrimary,
             textAlign = TextAlign.Center
         )
-
+        Spacer(modifier = Modifier.height(32.dp))
         Column(
             modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .fillMaxHeight()
-                .padding(top = 48.dp)
                 .then(bgModifier)
-                .padding(vertical = 64.dp), horizontalAlignment = Alignment.CenterHorizontally
+                .padding(vertical = 32.dp)
         ) {
             RoundedTextField(
-                fieldTitle = "title",
+                fieldTitle = stringResource(id = R.string.add_task_title_hint).lowercase(),
                 value = titleValue,
                 onValueChange = { newValue ->
                     titleValue = newValue
@@ -89,10 +99,12 @@ fun AddTaskScreen(
                 singleLine = true,
                 imeAction = ImeAction.Next
             )
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(32.dp))
             RoundedTextField(
-                textFieldModifier = Modifier.fillMaxHeight(),
-                fieldTitle = "description",
+                textFieldModifier = Modifier
+                    .heightIn(max = 256.dp)
+                    .fillMaxHeight(),
+                fieldTitle = stringResource(id = R.string.add_task_description_hint).lowercase(),
                 value = descriptionValue,
                 onValueChange = { newValue -> descriptionValue = newValue },
                 maxLines = 10,
@@ -100,26 +112,35 @@ fun AddTaskScreen(
                 imeAction = ImeAction.Done
             )
         }
-        Spacer(modifier = Modifier.height(48.dp))
+        Spacer(modifier = Modifier.height(32.dp))
         Button(
             modifier = Modifier
+                .heightIn(64.dp)
                 .fillMaxWidth(0.7f)
                 .padding(bottom = 16.dp),
             contentPadding = PaddingValues(16.dp),
             shape = RoundedCornerShape(24.dp),
             onClick = {
                 if (canSave) {
-                    viewModel.addNewTask(titleValue, descriptionValue)
-                    navController.popBackStack()
+                    addNewTask(titleValue, descriptionValue)
                 }
             }) {
             AnimatedContent(targetState = canSave) { canSave ->
-                val text = if (canSave) "Save" else "Fill all needed field"
-                Text(text = text)
+                val text =
+                    if (canSave) stringResource(id = R.string.add_task_save_button_label) else stringResource(
+                        id = R.string.add_task_save_button_fill_title_label
+                    )
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.button,
+                    color = MaterialTheme.colors.onPrimary
+                )
             }
         }
+
     }
 }
+
 
 @Preview(
     name = "AddTask",
@@ -131,6 +152,8 @@ fun AddTaskScreen(
 @Composable
 fun DefaultPreview() {
     TodolistTheme {
-        AddTaskScreen(rememberNavController(), hiltViewModel())
+        NewTaskForm(addNewTask = { _, _ ->
+
+        })
     }
 }

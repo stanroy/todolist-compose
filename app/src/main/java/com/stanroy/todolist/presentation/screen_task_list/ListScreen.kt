@@ -34,7 +34,6 @@ import com.stanroy.todolist.domain.model.TodoTask
 import com.stanroy.todolist.presentation.common.RoundedCheckBox
 import com.stanroy.todolist.presentation.common.Screen
 import com.stanroy.todolist.presentation.common.windowHorizontalPadding
-import com.stanroy.todolist.presentation.theme.TodoAppTypography
 
 @Composable
 fun ListScreen(navController: NavController, viewModel: ListScreenViewModel = hiltViewModel()) {
@@ -45,8 +44,13 @@ fun ListScreen(navController: NavController, viewModel: ListScreenViewModel = hi
     }
 
     Scaffold(modifier = Modifier.fillMaxSize(), floatingActionButton = {
-        FloatingActionButton(onClick = { navController.navigate(Screen.AddTaskScreen.route) }) {
-            Icon(painter = painterResource(id = R.drawable.plus), contentDescription = "New task")
+        FloatingActionButton(
+            backgroundColor = MaterialTheme.colors.primary,
+            onClick = { navController.navigate(Screen.AddTaskScreen.route) }) {
+            Icon(
+                painter = painterResource(id = R.drawable.plus),
+                contentDescription = "New task"
+            )
         }
     }) {
         LazyColumn(
@@ -91,12 +95,14 @@ fun ListItem(modifier: Modifier = Modifier, task: TodoTask) {
         ) {
             Text(
                 text = task.title,
-                style = TodoAppTypography.taskTitle(MaterialTheme.colors.onSurface)
+                style = MaterialTheme.typography.subtitle1,
+                color = MaterialTheme.colors.onBackground
             )
             task.description?.let {
                 Text(
                     text = it,
-                    style = TodoAppTypography.taskDescription()
+                    style = MaterialTheme.typography.body2,
+                    color = MaterialTheme.colors.secondary
                 )
             }
         }

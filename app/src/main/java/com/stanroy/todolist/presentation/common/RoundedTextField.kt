@@ -15,7 +15,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.stanroy.todolist.presentation.theme.TodoAppTypography
 import com.stanroy.todolist.presentation.theme.defaultRoundedCornerShape
 
 @Composable
@@ -34,7 +33,8 @@ fun RoundedTextField(
         if (fieldTitle.isNotEmpty()) Text(
             modifier = Modifier.padding(start = 16.dp),
             text = fieldTitle,
-            style = TodoAppTypography.fieldTitle(MaterialTheme.colors.surface)
+            style = MaterialTheme.typography.body1,
+            color = MaterialTheme.colors.onPrimary
         )
         TextField(
             modifier = textFieldModifier
