@@ -14,5 +14,13 @@ class TodoRepositoryImpl(private val tasksDao: TasksDao) : TodoRepository {
         tasksDao.insert(todoTask.toTaskEntity())
     }
 
+    override suspend fun deleteTask(todoTask: TodoTask) {
+        tasksDao.delete(todoTask.toTaskEntity())
+    }
+
+    override suspend fun updateTask(todoTask: TodoTask) {
+        tasksDao.updateTask(todoTask.toTaskEntity())
+    }
+
 
 }

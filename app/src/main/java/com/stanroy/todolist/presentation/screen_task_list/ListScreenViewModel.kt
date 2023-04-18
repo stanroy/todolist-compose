@@ -1,12 +1,12 @@
 package com.stanroy.todolist.presentation.screen_task_list
 
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.stanroy.todolist.domain.model.TodoTask
 import com.stanroy.todolist.domain.repository.TodoRepository
 import com.stanroy.todolist.presentation.common.ViewModelCommons
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -15,16 +15,46 @@ import javax.inject.Inject
 class ListScreenViewModel @Inject constructor(private val repository: TodoRepository) :
     ViewModel() {
 
-    private val _tasks = MutableStateFlow<List<TodoTask>>(emptyList())
-    val tasks = _tasks.asStateFlow()
+    private val _state = mutableStateOf(ListScreenState())
+    val state: State<ListScreenState> = _state
 
     private fun readTasksFromDatabase() {
         ViewModelCommons.dbScope.launch {
-            _tasks.emit(repository.getAllTodoTasks())
+            _state.value = ListScreenState(isLoading = true)
+            val tasks = repository.getAllTodoTasks()
+            _state.value = ListScreenState(isLoading = false, isReloading = false, tasks = tasks)
         }
     }
 
+    private fun deleteTaskFromDatabase(todoTask: TodoTask) {
+        ViewModelCommons.dbScope.launch {
+            repository.deleteTask(todoTask)
+            _state.value = ListScreenState(isReloading = true)
+        }
+    }
+
+    private fun addTask(todoTask: TodoTask) {
+        ViewModelCommons.dbScope.launch {
+            repository.addNewTask(todoTask)
+            _state.value = ListScreenState(isReloading = true)
+        }
+    }
+
+    private fun updateTaskFromDatabase(todoTask: TodoTask) {
+        ViewModelCommons.dbScope.launch {
+            repository.updateTask(todoTask)
+            val tasks = _state.value.tasks.toMutableList()
+            tasks.removeIf { it.id == todoTask.id }
+            tasks.add(todoTask)
+            _state.value = _state.value.copy(tasks = tasks)
+        }
+    }
+
+
     fun getAllTasks() = readTasksFromDatabase()
+    fun deleteTask(todoTask: TodoTask) = deleteTaskFromDatabase(todoTask)
+    fun restoreTask(todoTask: TodoTask) = addTask(todoTask)
+    fun updateTaskState(todoTask: TodoTask) = updateTaskFromDatabase(todoTask)
 
 
 }

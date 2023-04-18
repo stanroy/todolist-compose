@@ -14,7 +14,7 @@ class AddTaskScreenViewModel @Inject constructor(private val todoRepository: Tod
 
     fun addNewTask(title: String, description: String) {
         ViewModelCommons.dbScope.launch {
-            val task = TodoTask(title, description)
+            val task = TodoTask(title = title, description = description)
             todoRepository.addNewTask(task)
         }
     }

@@ -14,4 +14,7 @@ interface TasksDao {
 
     @Delete
     fun delete(taskEntity: TaskEntity)
+
+    @Update
+    fun updateTask(taskEntity: TaskEntity)
 }

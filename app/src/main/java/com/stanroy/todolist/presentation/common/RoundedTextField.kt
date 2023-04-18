@@ -45,7 +45,7 @@ fun RoundedTextField(
             maxLines = maxLines,
             singleLine = singleLine,
             colors = TextFieldDefaults.textFieldColors(
-                backgroundColor = MaterialTheme.colors.surface,
+                backgroundColor = MaterialTheme.colors.onPrimary,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent,
