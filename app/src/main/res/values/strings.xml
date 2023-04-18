@@ -1,6 +1,12 @@
 <resources>
     <string name="app_name">todolist</string>
 
+    <!--    LIST SCREEN-->
+    <string name="list_screen_snackbar_task_deleted">Task deleted</string>
+    <string name="list_screen_snackbar_go_back">Go back</string>
+    <string name="list_screen_new_task_cd">New task</string>
+    <string name="list_screen_remove_task_cd">Remove task</string>
+
 
     <!--    ADD TASK SCREEN-->
     <string name="add_task_screen_title">Add new task</string>

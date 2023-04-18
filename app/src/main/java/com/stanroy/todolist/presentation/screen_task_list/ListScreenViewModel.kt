@@ -22,19 +22,39 @@ class ListScreenViewModel @Inject constructor(private val repository: TodoReposi
         ViewModelCommons.dbScope.launch {
             _state.value = ListScreenState(isLoading = true)
             val tasks = repository.getAllTodoTasks()
-            _state.value = ListScreenState(isLoading = false, tasks = tasks)
+            _state.value = ListScreenState(isLoading = false, isReloading = false, tasks = tasks)
         }
     }
 
     private fun deleteTaskFromDatabase(todoTask: TodoTask) {
         ViewModelCommons.dbScope.launch {
             repository.deleteTask(todoTask)
+            _state.value = ListScreenState(isReloading = true)
+        }
+    }
+
+    private fun addTask(todoTask: TodoTask) {
+        ViewModelCommons.dbScope.launch {
+            repository.addNewTask(todoTask)
+            _state.value = ListScreenState(isReloading = true)
+        }
+    }
+
+    private fun updateTaskFromDatabase(todoTask: TodoTask) {
+        ViewModelCommons.dbScope.launch {
+            repository.updateTask(todoTask)
+            val tasks = _state.value.tasks.toMutableList()
+            tasks.removeIf { it.id == todoTask.id }
+            tasks.add(todoTask)
+            _state.value = _state.value.copy(tasks = tasks)
         }
     }
 
 
     fun getAllTasks() = readTasksFromDatabase()
     fun deleteTask(todoTask: TodoTask) = deleteTaskFromDatabase(todoTask)
+    fun restoreTask(todoTask: TodoTask) = addTask(todoTask)
+    fun updateTaskState(todoTask: TodoTask) = updateTaskFromDatabase(todoTask)
 
 
 }

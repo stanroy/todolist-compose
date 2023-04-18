@@ -1,12 +1,6 @@
 package com.stanroy.todolist.presentation.screen_task_list
 
 import android.content.res.Configuration
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.MutableTransitionState
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,16 +22,18 @@ import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
+import androidx.compose.material.SnackbarResult
 import androidx.compose.material.Text
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -51,29 +47,36 @@ import com.stanroy.todolist.presentation.common.Screen
 import com.stanroy.todolist.presentation.common.windowHorizontalPadding
 import com.stanroy.todolist.presentation.common.windowVerticalPadding
 import com.stanroy.todolist.presentation.theme.TodolistTheme
+import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ListScreen(navController: NavController, viewModel: ListScreenViewModel = hiltViewModel()) {
 
     val state = viewModel.state.value
+    val scaffoldState = rememberScaffoldState()
+    val scope = rememberCoroutineScope()
+    val taskDeletedText = stringResource(id = R.string.list_screen_snackbar_task_deleted)
+    val taskGoBackText = stringResource(id = R.string.list_screen_snackbar_go_back)
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(key1 = Unit, key2 = state.isReloading) {
         viewModel.getAllTasks()
     }
 
-    Scaffold(modifier = Modifier.fillMaxSize(), floatingActionButton = {
-        FloatingActionButton(
-            modifier = Modifier
-                .zIndex(1f),
-            backgroundColor = MaterialTheme.colors.primary,
-            onClick = { navController.navigate(Screen.AddTaskScreen.route) }) {
-            Icon(
-                painter = painterResource(id = R.drawable.plus),
-                contentDescription = "New task"
-            )
-        }
-    }) { padding ->
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        scaffoldState = scaffoldState,
+        floatingActionButton = {
+            FloatingActionButton(
+                modifier = Modifier
+                    .zIndex(1f),
+                backgroundColor = MaterialTheme.colors.primary,
+                onClick = { navController.navigate(Screen.AddTaskScreen.route) }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.plus),
+                    contentDescription = stringResource(id = R.string.list_screen_new_task_cd)
+                )
+            }
+        }) { padding ->
         LazyColumn(
             modifier = Modifier
                 .padding(padding)
@@ -86,32 +89,26 @@ fun ListScreen(navController: NavController, viewModel: ListScreenViewModel = hi
             )
         ) {
             items(state.tasks) { task ->
-                val canShowTask = remember { MutableTransitionState(false) }
-                    .apply { targetState = true }
-
-                AnimatedVisibility(
-                    visibleState = canShowTask,
-                    enter = fadeIn(),
-                    exit = fadeOut() + slideOutVertically()
-                ) {
-                    ListItem(modifier = Modifier.animateItemPlacement(), task = task) {
-                        canShowTask.targetState = false
-                        viewModel.deleteTask(task)
+                ListItem(task = task, onTaskRemoveClicked = {
+                    viewModel.deleteTask(task)
+                    scope.launch {
+                        val deleteTaskResult = scaffoldState.snackbarHostState.showSnackbar(
+                            taskDeletedText,
+                            taskGoBackText
+                        )
+                        if (deleteTaskResult == SnackbarResult.ActionPerformed) {
+                            viewModel.restoreTask(task)
+                        }
                     }
-                }
-
-                if (!canShowTask.currentState) {
-                    viewModel.getAllTasks()
-                }
-
+                }, onStateChanged = { state ->
+                    viewModel.updateTaskState(task.copy(isFinished = state))
+                })
             }
         }
 
         if (state.isLoading) {
-            val circularProgressBg = Color(0x68D1D1D1)
             Box(
                 modifier = Modifier
-                    .background(color = circularProgressBg)
                     .fillMaxSize()
                     .zIndex(2f),
                 contentAlignment = Alignment.Center
@@ -120,7 +117,7 @@ fun ListScreen(navController: NavController, viewModel: ListScreenViewModel = hi
                     modifier = Modifier
                         .align(Alignment.Center)
                         .fillMaxSize(0.2f),
-                    color = MaterialTheme.colors.primary
+                    color = MaterialTheme.colors.secondary
                 )
             }
         }
@@ -132,7 +129,8 @@ fun ListScreen(navController: NavController, viewModel: ListScreenViewModel = hi
 fun ListItem(
     modifier: Modifier = Modifier,
     task: TodoTask,
-    onTaskRemoveClicked: () -> Unit
+    onTaskRemoveClicked: () -> Unit,
+    onStateChanged: (Boolean) -> Unit
 ) {
     val gradient = Brush.verticalGradient(
         colorStops = arrayOf(
@@ -149,9 +147,11 @@ fun ListItem(
         ) {
             RoundedCheckBox(
                 modifier = Modifier.padding(start = 32.dp),
+                state = task.isFinished,
                 borderColor = MaterialTheme.colors.onPrimary,
                 checkedBackground = MaterialTheme.colors.onPrimary,
-                onStateChanged = {/*TODO change task state*/ })
+                onStateChanged = onStateChanged
+            )
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -176,7 +176,7 @@ fun ListItem(
                     .padding(end = 32.dp)
                     .clickable() { onTaskRemoveClicked() },
                 painter = painterResource(id = R.drawable.delete),
-                contentDescription = "Remove task",
+                contentDescription = stringResource(id = R.string.list_screen_remove_task_cd),
                 colorFilter = ColorFilter.tint(color = MaterialTheme.colors.onPrimary)
             )
         }
@@ -207,9 +207,7 @@ fun DefaultPreview() {
             )
         ) {
             items(tempList) { task ->
-                ListItem(task = task) {
-
-                }
+                ListItem(task = task, onTaskRemoveClicked = {}) {}
                 Divider()
             }
         }
