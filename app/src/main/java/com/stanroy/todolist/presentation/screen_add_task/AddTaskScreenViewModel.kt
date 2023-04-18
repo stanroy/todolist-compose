@@ -1,5 +1,7 @@
 package com.stanroy.todolist.presentation.screen_add_task
 
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.stanroy.todolist.domain.model.TodoTask
 import com.stanroy.todolist.domain.repository.TodoRepository
@@ -12,10 +14,27 @@ import javax.inject.Inject
 class AddTaskScreenViewModel @Inject constructor(private val todoRepository: TodoRepository) :
     ViewModel() {
 
-    fun addNewTask(title: String, description: String) {
+    private val _state = mutableStateOf(AddTaskState())
+    val state: State<AddTaskState> = _state
+
+    private fun addTaskToDatabase(todoTask: TodoTask) {
         ViewModelCommons.dbScope.launch {
-            val task = TodoTask(title = title, description = description)
-            todoRepository.addNewTask(task)
+            todoRepository.addNewTask(todoTask)
         }
     }
+
+    private fun getTaskFromDatabase(id: Int) {
+        ViewModelCommons.dbScope.launch {
+            val task = todoRepository.getTaskById(id)
+            _state.value = AddTaskState(taskToEdit = task)
+        }
+    }
+
+    fun addEditNewTask(todoTask: TodoTask) =
+        addTaskToDatabase(todoTask)
+
+    fun getTaskToEdit(id: Int) {
+        if (id != -1) getTaskFromDatabase(id)
+    }
+
 }

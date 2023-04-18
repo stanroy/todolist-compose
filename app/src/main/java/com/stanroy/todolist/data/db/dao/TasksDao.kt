@@ -9,6 +9,9 @@ interface TasksDao {
     @Query("SELECT * FROM TaskEntity")
     fun getAll(): List<TaskEntity>
 
+    @Query("SELECT * FROM TaskEntity WHERE uid = :id")
+    fun getById(id: Int): TaskEntity
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(taskEntity: TaskEntity)
 

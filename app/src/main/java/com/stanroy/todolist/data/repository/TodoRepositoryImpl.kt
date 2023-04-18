@@ -10,6 +10,9 @@ class TodoRepositoryImpl(private val tasksDao: TasksDao) : TodoRepository {
     override suspend fun getAllTodoTasks(): List<TodoTask> =
         tasksDao.getAll().map { it.toTodoTask() }
 
+    override suspend fun getTaskById(id: Int): TodoTask = tasksDao.getById(id).toTodoTask()
+
+
     override suspend fun addNewTask(todoTask: TodoTask) {
         tasksDao.insert(todoTask.toTaskEntity())
     }

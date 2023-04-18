@@ -10,15 +10,16 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.stanroy.todolist.presentation.common.Screen
+import com.stanroy.todolist.presentation.common.addEditTaskRoute
+import com.stanroy.todolist.presentation.common.taskId
 import com.stanroy.todolist.presentation.screen_add_task.AddTaskScreen
 import com.stanroy.todolist.presentation.screen_task_list.ListScreen
 import com.stanroy.todolist.presentation.theme.TodolistTheme
@@ -54,26 +55,22 @@ class MainActivity : ComponentActivity() {
                                 ListScreen(navController)
                             }
 
-                            composable(Screen.AddTaskScreen.route) {
-                                AddTaskScreen(navController)
+                            composable(
+                                Screen.AddTaskScreen.addEditTaskRoute(),
+                                arguments = listOf(navArgument(Screen.AddTaskScreen.taskId) {
+                                    defaultValue = -1
+                                    type = NavType.IntType
+                                })
+                            ) { backStackEntry ->
+                                AddTaskScreen(
+                                    navController = navController,
+                                    taskIdToEdit = backStackEntry.arguments?.getInt(Screen.AddTaskScreen.taskId)
+                                )
                             }
                         }
                     }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    TodolistTheme {
-        Greeting("Android")
     }
 }

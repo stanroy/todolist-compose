@@ -22,21 +22,23 @@ class ListScreenViewModel @Inject constructor(private val repository: TodoReposi
         ViewModelCommons.dbScope.launch {
             _state.value = ListScreenState(isLoading = true)
             val tasks = repository.getAllTodoTasks()
-            _state.value = ListScreenState(isLoading = false, isReloading = false, tasks = tasks)
+            _state.value = ListScreenState(isLoading = false, tasks = sortTasks(tasks))
         }
     }
 
     private fun deleteTaskFromDatabase(todoTask: TodoTask) {
         ViewModelCommons.dbScope.launch {
             repository.deleteTask(todoTask)
-            _state.value = ListScreenState(isReloading = true)
+            val tasks = _state.value.tasks - todoTask
+            _state.value = _state.value.copy(tasks = tasks)
         }
     }
 
     private fun addTask(todoTask: TodoTask) {
         ViewModelCommons.dbScope.launch {
             repository.addNewTask(todoTask)
-            _state.value = ListScreenState(isReloading = true)
+            val tasks = _state.value.tasks + todoTask
+            _state.value = _state.value.copy(tasks = sortTasks(tasks))
         }
     }
 
@@ -46,8 +48,14 @@ class ListScreenViewModel @Inject constructor(private val repository: TodoReposi
             val tasks = _state.value.tasks.toMutableList()
             tasks.removeIf { it.id == todoTask.id }
             tasks.add(todoTask)
-            _state.value = _state.value.copy(tasks = tasks)
+            _state.value = _state.value.copy(tasks = sortTasks(tasks))
         }
+    }
+
+    private fun sortTasks(tasks: List<TodoTask>): List<TodoTask> {
+        val finishedTasks = tasks.filter { it.isFinished }.sortedBy { it.title }
+        val unfinishedTasks = (tasks - finishedTasks.toSet()).sortedBy { it.title }
+        return finishedTasks + unfinishedTasks
     }
 
 

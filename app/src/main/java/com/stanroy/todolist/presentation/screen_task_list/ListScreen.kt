@@ -44,6 +44,7 @@ import com.stanroy.todolist.R
 import com.stanroy.todolist.domain.model.TodoTask
 import com.stanroy.todolist.presentation.common.RoundedCheckBox
 import com.stanroy.todolist.presentation.common.Screen
+import com.stanroy.todolist.presentation.common.addEditTaskRoute
 import com.stanroy.todolist.presentation.common.windowHorizontalPadding
 import com.stanroy.todolist.presentation.common.windowVerticalPadding
 import com.stanroy.todolist.presentation.theme.TodolistTheme
@@ -58,17 +59,15 @@ fun ListScreen(navController: NavController, viewModel: ListScreenViewModel = hi
     val taskDeletedText = stringResource(id = R.string.list_screen_snackbar_task_deleted)
     val taskGoBackText = stringResource(id = R.string.list_screen_snackbar_go_back)
 
-    LaunchedEffect(key1 = Unit, key2 = state.isReloading) {
+    LaunchedEffect(key1 = Unit) {
         viewModel.getAllTasks()
     }
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().zIndex(1f),
         scaffoldState = scaffoldState,
         floatingActionButton = {
             FloatingActionButton(
-                modifier = Modifier
-                    .zIndex(1f),
                 backgroundColor = MaterialTheme.colors.primary,
                 onClick = { navController.navigate(Screen.AddTaskScreen.route) }) {
                 Icon(
@@ -80,7 +79,7 @@ fun ListScreen(navController: NavController, viewModel: ListScreenViewModel = hi
         LazyColumn(
             modifier = Modifier
                 .padding(padding)
-                .zIndex(1f),
+                .zIndex(0f),
             contentPadding = PaddingValues(
                 top = windowVerticalPadding,
                 start = windowHorizontalPadding,
@@ -89,20 +88,30 @@ fun ListScreen(navController: NavController, viewModel: ListScreenViewModel = hi
             )
         ) {
             items(state.tasks) { task ->
-                ListItem(task = task, onTaskRemoveClicked = {
-                    viewModel.deleteTask(task)
-                    scope.launch {
-                        val deleteTaskResult = scaffoldState.snackbarHostState.showSnackbar(
-                            taskDeletedText,
-                            taskGoBackText
+                ListItem(
+                    task = task,
+                    onEditTaskClicked = {
+                        navController.navigate(
+                            Screen.AddTaskScreen.addEditTaskRoute(
+                                task.id.toString()
+                            )
                         )
-                        if (deleteTaskResult == SnackbarResult.ActionPerformed) {
-                            viewModel.restoreTask(task)
+                    },
+                    onTaskRemoveClicked = {
+                        viewModel.deleteTask(task)
+                        scope.launch {
+                            val deleteTaskResult = scaffoldState.snackbarHostState.showSnackbar(
+                                taskDeletedText,
+                                taskGoBackText
+                            )
+                            if (deleteTaskResult == SnackbarResult.ActionPerformed) {
+                                viewModel.restoreTask(task)
+                            }
                         }
-                    }
-                }, onStateChanged = { state ->
-                    viewModel.updateTaskState(task.copy(isFinished = state))
-                })
+                    },
+                    onStateChanged = { state ->
+                        viewModel.updateTaskState(task.copy(isFinished = state))
+                    })
             }
         }
 
@@ -110,7 +119,7 @@ fun ListScreen(navController: NavController, viewModel: ListScreenViewModel = hi
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .zIndex(2f),
+                    .zIndex(1f),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(
@@ -129,6 +138,7 @@ fun ListScreen(navController: NavController, viewModel: ListScreenViewModel = hi
 fun ListItem(
     modifier: Modifier = Modifier,
     task: TodoTask,
+    onEditTaskClicked: () -> Unit,
     onTaskRemoveClicked: () -> Unit,
     onStateChanged: (Boolean) -> Unit
 ) {
@@ -171,14 +181,24 @@ fun ListItem(
                 }
             }
 
-            Image(
-                modifier = Modifier
-                    .padding(end = 32.dp)
-                    .clickable() { onTaskRemoveClicked() },
-                painter = painterResource(id = R.drawable.delete),
-                contentDescription = stringResource(id = R.string.list_screen_remove_task_cd),
-                colorFilter = ColorFilter.tint(color = MaterialTheme.colors.onPrimary)
-            )
+            Row {
+                Image(
+                    modifier = Modifier
+                        .padding(end = 16.dp)
+                        .clickable() { onEditTaskClicked() },
+                    painter = painterResource(id = R.drawable.edit),
+                    contentDescription = stringResource(id = R.string.list_screen_remove_task_cd),
+                    colorFilter = ColorFilter.tint(color = MaterialTheme.colors.onPrimary)
+                )
+                Image(
+                    modifier = Modifier
+                        .padding(end = 32.dp)
+                        .clickable() { onTaskRemoveClicked() },
+                    painter = painterResource(id = R.drawable.delete),
+                    contentDescription = stringResource(id = R.string.list_screen_remove_task_cd),
+                    colorFilter = ColorFilter.tint(color = MaterialTheme.colors.onPrimary)
+                )
+            }
         }
         Spacer(modifier = Modifier.height(16.dp))
     }
@@ -207,7 +227,7 @@ fun DefaultPreview() {
             )
         ) {
             items(tempList) { task ->
-                ListItem(task = task, onTaskRemoveClicked = {}) {}
+                ListItem(task = task, onEditTaskClicked = {}, onTaskRemoveClicked = {}) {}
                 Divider()
             }
         }
