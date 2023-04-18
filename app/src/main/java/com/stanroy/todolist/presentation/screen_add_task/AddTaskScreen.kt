@@ -20,6 +20,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.stanroy.todolist.R
+import com.stanroy.todolist.domain.model.TodoTask
 import com.stanroy.todolist.presentation.common.RoundedTextField
 import com.stanroy.todolist.presentation.common.defaultWindowPadding
 import com.stanroy.todolist.presentation.theme.TodolistTheme
@@ -44,19 +46,28 @@ import com.stanroy.todolist.presentation.theme.defaultRoundedCornerShape
 @Composable
 fun AddTaskScreen(
     navController: NavController,
-    viewModel: AddTaskScreenViewModel = hiltViewModel()
+    viewModel: AddTaskScreenViewModel = hiltViewModel(),
+    taskIdToEdit: Int?,
 ) {
-    NewTaskForm { title, description ->
-        viewModel.addNewTask(title, description)
-        navController.popBackStack()
+
+    val state = viewModel.state.value
+
+    LaunchedEffect(Unit) {
+        taskIdToEdit?.let { viewModel.getTaskToEdit(taskIdToEdit.toInt()) }
     }
+
+    NewTaskForm(taskToEdit = state.taskToEdit, addNewTask = { task ->
+        viewModel.addEditNewTask(task)
+        navController.popBackStack()
+    })
 }
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun NewTaskForm(
     modifier: Modifier = Modifier,
-    addNewTask: (title: String, description: String) -> Unit
+    taskToEdit: TodoTask?,
+    addNewTask: (task: TodoTask) -> Unit,
 ) {
     var canSave by remember { mutableStateOf(false) }
     var titleValue by rememberSaveable { mutableStateOf("") }
@@ -66,6 +77,15 @@ fun NewTaskForm(
         color = bgColor,
         shape = defaultRoundedCornerShape
     )
+
+    LaunchedEffect(key1 = taskToEdit) {
+        taskToEdit?.let {
+            titleValue = it.title
+            descriptionValue = it.description.orEmpty()
+            canSave = true
+        }
+    }
+
     Column(
         modifier = modifier
             .verticalScroll(state = rememberScrollState())
@@ -121,8 +141,8 @@ fun NewTaskForm(
             contentPadding = PaddingValues(16.dp),
             shape = RoundedCornerShape(24.dp),
             onClick = {
-                if (canSave) {
-                    addNewTask(titleValue, descriptionValue)
+                if (canSave) createEditTask(taskToEdit, titleValue, descriptionValue) {
+                    addNewTask(it)
                 }
             }) {
             AnimatedContent(targetState = canSave) { canSave ->
@@ -141,6 +161,24 @@ fun NewTaskForm(
     }
 }
 
+fun createEditTask(
+    taskToEdit: TodoTask?,
+    titleValue: String,
+    descriptionValue: String,
+    createTask: (TodoTask) -> Unit
+) {
+    val newTask =
+        TodoTask(title = titleValue, description = descriptionValue)
+    taskToEdit?.let {
+        createTask(
+            it.copy(
+                title = titleValue,
+                description = descriptionValue
+            )
+        )
+    } ?: createTask(newTask)
+}
+
 
 @Preview(
     name = "AddTask",
@@ -152,7 +190,7 @@ fun NewTaskForm(
 @Composable
 fun DefaultPreview() {
     TodolistTheme {
-        NewTaskForm(addNewTask = { _, _ ->
+        NewTaskForm(taskToEdit = null, addNewTask = { _ ->
 
         })
     }
