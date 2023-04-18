@@ -1,8 +1,6 @@
 package com.stanroy.todolist.presentation.screen_add_task
 
 import android.content.res.Configuration.UI_MODE_NIGHT_NO
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -62,7 +60,6 @@ fun AddTaskScreen(
     })
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun NewTaskForm(
     modifier: Modifier = Modifier,
@@ -145,17 +142,15 @@ fun NewTaskForm(
                     addNewTask(it)
                 }
             }) {
-            AnimatedContent(targetState = canSave) { canSave ->
-                val text =
-                    if (canSave) stringResource(id = R.string.add_task_save_button_label) else stringResource(
-                        id = R.string.add_task_save_button_fill_title_label
-                    )
-                Text(
-                    text = text,
-                    style = MaterialTheme.typography.button,
-                    color = MaterialTheme.colors.onPrimary
+            val text =
+                if (canSave) stringResource(id = R.string.add_task_save_button_label) else stringResource(
+                    id = R.string.add_task_save_button_fill_title_label
                 )
-            }
+            Text(
+                text = text,
+                style = MaterialTheme.typography.button,
+                color = MaterialTheme.colors.onPrimary
+            )
         }
 
     }

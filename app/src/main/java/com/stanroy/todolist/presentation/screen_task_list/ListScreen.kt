@@ -59,17 +59,15 @@ fun ListScreen(navController: NavController, viewModel: ListScreenViewModel = hi
     val taskDeletedText = stringResource(id = R.string.list_screen_snackbar_task_deleted)
     val taskGoBackText = stringResource(id = R.string.list_screen_snackbar_go_back)
 
-    LaunchedEffect(key1 = Unit, key2 = state.isReloading) {
+    LaunchedEffect(key1 = Unit) {
         viewModel.getAllTasks()
     }
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().zIndex(1f),
         scaffoldState = scaffoldState,
         floatingActionButton = {
             FloatingActionButton(
-                modifier = Modifier
-                    .zIndex(1f),
                 backgroundColor = MaterialTheme.colors.primary,
                 onClick = { navController.navigate(Screen.AddTaskScreen.route) }) {
                 Icon(
@@ -81,7 +79,7 @@ fun ListScreen(navController: NavController, viewModel: ListScreenViewModel = hi
         LazyColumn(
             modifier = Modifier
                 .padding(padding)
-                .zIndex(1f),
+                .zIndex(0f),
             contentPadding = PaddingValues(
                 top = windowVerticalPadding,
                 start = windowHorizontalPadding,
@@ -121,7 +119,7 @@ fun ListScreen(navController: NavController, viewModel: ListScreenViewModel = hi
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .zIndex(2f),
+                    .zIndex(1f),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(

@@ -27,7 +27,6 @@ import com.stanroy.todolist.presentation.theme.Shapes
  * @param modifier composable modifier for main container
  * @param state checkbox state (checked, unchecked)
  * @param size checkbox size (width, height)
- * @param checkMarkColorFilter default checkmark color is White
  * @param borderColor default checkmark border color is Gray
  * @param checkedBackground background when checkbox is checked
  * @param unCheckedBackground background when checkbox is unchecked
@@ -47,8 +46,7 @@ fun RoundedCheckBox(
     uncheckedSymbolColor: Color = Color.White,
     onStateChanged: (state: Boolean) -> Unit
 ) {
-    var checked by remember { mutableStateOf(state) }
-    val animatedBackgroundColor by animateColorAsState(targetValue = if (checked) checkedBackground else unCheckedBackground)
+    val animatedBackgroundColor by animateColorAsState(targetValue = if (state) checkedBackground else unCheckedBackground)
     Box(
         modifier = modifier
             .size(size)
@@ -56,15 +54,14 @@ fun RoundedCheckBox(
             .border(width = 2.5.dp, color = borderColor, shape = Shapes.small)
             .background(color = animatedBackgroundColor)
             .clickable(interactionSource = MutableInteractionSource(), indication = null) {
-                checked = !checked
-                onStateChanged(checked)
+                onStateChanged(!state)
             }
     ) {
         Image(
             modifier = Modifier.padding(2.dp),
             painter = painterResource(id = R.drawable.checkmark),
             contentDescription = "check",
-            colorFilter = ColorFilter.tint(if (checked) checkedSymbolColor else uncheckedSymbolColor)
+            colorFilter = ColorFilter.tint(if (state) checkedSymbolColor else uncheckedSymbolColor)
         )
     }
 }
