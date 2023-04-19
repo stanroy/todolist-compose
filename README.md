@@ -48,10 +48,12 @@ APK file of this application is available in releases tab
 
 ## Usage example
 
-Launching the app gives you empty list that will contain the tasks you add. To add a task, click on a floating button in the right corner. You will be presented with
-a new screen. You have to fill in the title, description is optional (you're informed about that when trying to save the task). After saving your new task, it will appear 
-in the task list. From there you have multiple options. You can:
-- mark task as finished, clicking on a empty checkbox (or mark as unfinished clicking on it again)
-- edit your task
-- delete task
-- restore deleted task by clicking "Go back" on the bottom snackbar, after deleting the task
+When you launch the app, you'll see an empty list where you can add your tasks. To add a task, simply click on the floating button in the bottom right corner. This will take you to a new screen where you can enter the task title. If you like, you can also add a description, but this is optional. Once you've entered the task details, save it and it will appear in the task list.
+
+From the task list, you can perform several actions:
+
+- To mark a task as complete, simply click on the empty checkbox next to it. To unmark a task, just click on the checkbox again.
+- To edit a task, click on the pen icon and you'll be taken to a screen where you can edit the task details.
+- To delete a task, click on the trash bin icon.
+- If you accidentally delete a task, don't worry! You can easily restore it by clicking the "Go back" button that appears at the bottom of the screen after deleting a task.
+
